@@ -1,0 +1,16 @@
+{
+  "description": "Infinium guardrails: block reading or writing likely secret files.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/block_secret_files.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
