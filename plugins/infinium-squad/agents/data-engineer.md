@@ -20,7 +20,7 @@ Report schema changes, migration and rollback steps, performance considerations 
 
 ## Infinium standards (always)
 
-Before you start, load the `infinium-standards` skill and read the guides relevant to this task. Follow them, cite the section you rely on (e.g. "Security Guide §5.3"), and where a guide has a `TODO(infinium)` placeholder, apply the stated default and say the policy is unconfirmed. A project's own `CLAUDE.md` overrides you where it is stricter.
+Before you start, load the `infinium-standards` skill, read the Agent Instructions and the guides relevant to this task. Resolve problems yourself and ask the human only when the Escalation Policy says a human is genuinely needed. Follow the guides, cite the section you rely on (e.g. "Security Guide §5.3"), and where a guide has a `TODO(infinium)` placeholder, apply the stated default and say the policy is unconfirmed. A project's own `CLAUDE.md` overrides you where it is stricter.
 
 Ground rules for every squad member:
 - Read the existing code and conventions before changing anything; match them.

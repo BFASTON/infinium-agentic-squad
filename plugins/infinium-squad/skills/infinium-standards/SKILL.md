@@ -1,6 +1,6 @@
 ---
 name: infinium-standards
-description: Infinium's company-wide engineering standards (Security Guide, Architecture Guide, Coding Standards, Testing Standards, Git and PR Workflow). Load whenever designing, writing, reviewing, testing or shipping code at Infinium, or when asked what Infinium's policy is.
+description: Infinium's company-wide engineering standards (Agent Instructions, Escalation Policy, Security Guide, Architecture Guide, Coding Standards, Testing Standards, Git and PR Workflow, Community Tools Register). Load whenever designing, writing, reviewing, testing or shipping code at Infinium, or when asked what Infinium's policy is.
 ---
 
 # Infinium Engineering Standards
@@ -9,11 +9,14 @@ These are the shared rules every Infinium squad agent follows. Read the guide th
 
 | Guide | Read it when |
 |---|---|
+| [Agent Instructions](standards/agent-instructions.md) | Always, first: how squad agents behave, which guide to use, and when to hand over or escalate |
+| [Escalation Policy](standards/escalation-policy.md) | Deciding whether a human is genuinely needed, and how to ask (chat or phone push) |
 | [Security Guide](standards/security-guide.md) | Handling auth, secrets, user input, personal data, dependencies, or any review |
 | [Architecture Guide](standards/architecture-guide.md) | Designing a system or feature, adding a service, choosing technology, writing an ADR |
 | [Coding Standards](standards/coding-standards.md) | Writing or reviewing any code |
 | [Testing Standards](standards/testing-standards.md) | Writing tests, deciding coverage, fixing flaky tests |
 | [Git and PR Workflow](standards/git-and-pr-workflow.md) | Branching, committing, opening or reviewing a PR, releasing |
+| [Community Tools Register](standards/community-tools.md) | Using, installing or proposing a community skill or plugin |
 
 ## Precedence
 

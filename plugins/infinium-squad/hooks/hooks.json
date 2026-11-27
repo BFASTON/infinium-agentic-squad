@@ -1,5 +1,5 @@
 {
-  "description": "Infinium guardrails: block reading or writing likely secret files.",
+  "description": "Infinium guardrails: block reading or writing likely secret files, and push a phone alert when Claude needs a human (opt-in via env vars).",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,6 +8,17 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/block_secret_files.py\""
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notify_human.py\"",
+            "timeout": 10
           }
         ]
       }

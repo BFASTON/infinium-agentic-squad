@@ -66,3 +66,13 @@ A change is done when:
 - [ ] Docs, README, OpenAPI spec, runbook or ADR are updated if behaviour changed
 - [ ] It has been reviewed and approved (Git and PR Workflow)
 - [ ] It is observable (logs/metrics for new paths) and can be rolled back
+
+## 8. Fixing bugs
+
+1. **Reproduce first.** Capture the failure as a failing test (or a minimal script) before changing code. If you can't reproduce it, say so and gather evidence rather than guessing.
+2. **Fix the cause, not the symptom.** Find the root cause and fix it there. A retry, a broad `try/except`, a sleep or a null check that hides the failure is not a fix unless the root cause is a genuinely transient fault.
+3. **One hypothesis at a time.** Change one thing, check the result, and revert changes that didn't help. Don't stack speculative fixes.
+4. **Keep the regression test.** The reproducing test stays in the suite (Testing Standards).
+5. **Look for siblings.** Check whether the same mistake exists elsewhere and fix or report those too.
+6. **Explain it.** The PR or report states the cause, the fix, how it was verified and the blast radius.
+7. **Unclear cause? Hand over.** When the cause isn't clear after a couple of attempts, hand the problem to `on-call-engineer` (Agent Instructions §4).
