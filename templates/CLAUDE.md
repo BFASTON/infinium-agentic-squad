@@ -8,7 +8,7 @@ This project uses the **Infinium Agentic Squad** plugin. All agents follow the I
 
 - **What it is:** <!-- one or two sentences -->
 - **Owner team:** <!-- team name; see CODEOWNERS -->
-- **Data classification:** <!-- Public / Internal / Confidential / Restricted (Security Guide §2) -->
+- **Data classification:** <!-- C-level of the most sensitive data this project handles, e.g. C3 (Internal). See Security Guide §2 -->
 - **Architecture notes:** <!-- link to docs/adr/ and any diagrams -->
 
 ## Stack
