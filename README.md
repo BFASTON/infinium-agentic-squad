@@ -13,15 +13,40 @@ A shared team of specialist [Claude Code](https://code.claude.com/docs) agents, 
 | `squad-lead` | Plans multi-step work and delegates to the right specialists, then gates it through review |
 | `architect` | System and feature design, trade-offs, API/event contracts, ADRs |
 | `backend-engineer` | APIs, services, business logic, integrations |
-| `frontend-engineer` | UI, components, accessibility, client performance |
-| `data-engineer` | Schemas, migrations, queries, pipelines, data quality |
+| `frontend-engineer` | UI, components, design systems, accessibility, responsive layout, web performance |
+| `python-specialist` | Idiomatic, typed Python: packaging, async, pytest, Python performance |
+| `rust-specialist` | Idiomatic Rust: ownership, error handling, async, `unsafe` review, Cargo, performance |
+| `sql-specialist` | Writing, reviewing and tuning SQL in any dialect, query plans and indexes |
+| `data-engineer` | Schemas, migrations, pipelines, data quality |
 | `qa-engineer` | Test strategy, writing tests, reproducing bugs, fixing flaky tests |
 | `devops-engineer` | CI/CD, Docker, infrastructure as code, observability |
 | `security-reviewer` | Threat models and security reviews (read-only) |
 | `code-reviewer` | Correctness and standards review before a PR (read-only) |
+| `simplifier` | Flags over-engineering and needless complexity, and proposes (or applies) simpler code |
 | `tech-writer` | READMEs, runbooks, API docs, release notes |
 
 Claude picks the right agent automatically from your request, or you can ask for one by name: *"Use the architect to design a notifications service."*
+
+### The challenger team
+
+A second, independent team whose job is to check the first team's work and build a competing solution, so you can compare two genuinely different answers instead of trusting one.
+
+| Agent | What it does |
+|---|---|
+| `challenger-lead` | Builds an alternative solution from the task brief alone, deliberately exploring a different approach |
+| `challenger-validator` | Independently verifies a solution against the acceptance criteria and tries to break it (read-only) |
+| `challenger-critic` | Gives the other team's solution the toughest fair critique, compared with the alternative (read-only) |
+| `squad-judge` | Neutral judge: compares both solutions blind on a rubric and gives a verdict (read-only) |
+
+How it stays independent:
+
+- **Separate context.** The challenger team gets only a frozen task brief. It never sees the primary squad's plan, reasoning or code while it builds, and the primary squad isn't told a challenger exists.
+- **Separate code.** Each team builds in its own git worktree and branch, from the same base commit.
+- **Swap testers.** Each solution is validated by the *other* team's tester (`challenger-validator` checks the squad's work, `qa-engineer` checks the challenger's).
+- **Critique only finished work.** Teams see each other's diff and report only after both have committed, then critique each other and get one chance to respond.
+- **Blind judging.** The judge sees "Solution 1" and "Solution 2" in random order, with team names removed.
+
+Run it with `/compete` for a new task or `/challenge` for work that's already done. Nothing is merged or pushed; you get a verdict (adopt one, combine named parts of both, or neither), a comparison table and both branches to look at. A run costs roughly two to three times a normal one, so save it for decisions that are high-stakes, hard to reverse, or have several credible approaches. The full procedure is in the [`challenge-protocol` skill](plugins/infinium-squad/skills/challenge-protocol/SKILL.md).
 
 ### Slash commands
 
@@ -33,8 +58,11 @@ Claude picks the right agent automatically from your request, or you can ask for
 | `/review [scope]` | Code review of your current changes |
 | `/security-review [scope]` | Security review of your current changes |
 | `/ship-check` | Lint, types, tests, both reviews and a PR description: ready or not |
+| `/simplify-check [scope] [--apply]` | Find over-engineering in your changes; `--apply` makes the simplifications |
+| `/compete <task>` | Squad and challenger team both build it, validate and critique each other, judge picks |
+| `/challenge [what it was for]` | Challenger team validates existing work, builds an alternative, judge compares |
 
-(If another plugin uses the same command name, use the namespaced form, e.g. `/infinium-squad:review`.)
+(If another plugin or a built-in uses the same command name, use the namespaced form, e.g. `/infinium-squad:review`.)
 
 ### Company standards
 
@@ -61,7 +89,7 @@ In Claude Code, run:
 /plugin install infinium-squad@infinium
 ```
 
-Restart Claude Code if prompted, then check with `/agents` (you should see the ten squad agents) and `/help` (the commands above).
+Restart Claude Code if prompted, then check with `/agents` (you should see the eighteen squad and challenger agents) and `/help` (the commands above).
 
 ### Install for a whole repository
 
@@ -95,6 +123,8 @@ Then copy [`templates/CLAUDE.md`](templates/CLAUDE.md) into the project root and
 /design Move order notifications to an event-driven model
 /review
 /ship-check
+/compete Add rate limiting to the public API
+/challenge Replace the nightly invoice sync with change data capture
 ```
 
 Or just talk to Claude normally. It will hand work to specialists when it fits, and run the code and security reviewers before you open a PR.
@@ -105,12 +135,13 @@ Or just talk to Claude normally. It will hand work to specialists when it fits, 
 .claude-plugin/marketplace.json        Marketplace catalogue (what /plugin marketplace add reads)
 plugins/infinium-squad/
   .claude-plugin/plugin.json           Plugin manifest
-  agents/                              The ten squad agents
+  agents/                              The squad and challenger team agents
   commands/                            Slash commands
   skills/infinium-standards/           Company standards, loaded by every agent
+  skills/challenge-protocol/           How /compete and /challenge run the two teams
   hooks/                               Secret-file guardrail
 templates/CLAUDE.md                    Starter CLAUDE.md for project repos
-scripts/validate.py                    Checks manifests and agent/command frontmatter
+scripts/validate.py                    Checks manifests, frontmatter and agent/skill references
 .github/workflows/                     CI: validation and secret scanning
 ```
 
