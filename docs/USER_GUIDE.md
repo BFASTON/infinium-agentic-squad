@@ -11,7 +11,7 @@ This guide is for everyone at Infinium who writes, reviews or ships code with Cl
 7. [Rules of the road](#7-rules-of-the-road)
 8. [Troubleshooting and getting help](#8-troubleshooting-and-getting-help)
 
-Anything marked `TODO(infinium)` is an internal detail still to be confirmed. Ask your team lead until it is filled in.
+Anything marked `TODO(infinium)` is an internal detail still to be confirmed. Ask the R&D team until it is filled in.
 
 ---
 
@@ -45,9 +45,9 @@ Claude Code needs a paid Claude account. The free claude.ai plan does not includ
 
 ### For staff: how to get a seat
 
-1. Ask for a seat through `TODO(infinium): request route, e.g. IT service desk form or ticket queue`.
+1. Ask **IT** for a seat. `TODO(infinium): exact request route, e.g. IT service desk form or ticket queue.`
    Include your name, work email, team, and whether you expect heavy daily use (this decides the seat type, see below).
-2. Your request is approved by `TODO(infinium): approver, e.g. line manager plus Engineering/IT budget owner`.
+2. **IT** approves Claude seats.
 3. You receive an email invitation to Infinium's Claude organisation. Accept it **with your Infinium work email**.
    `TODO(infinium): if SSO is enabled, note "sign in with Microsoft/Entra SSO" here.`
 4. Install Claude Code and sign in (section 3).
@@ -426,4 +426,4 @@ Sources: [Use Git Credential Manager to authenticate to Azure Repos](https://lea
 | `git push` asks for a password | GCM isn't installed or configured. Repeat section 6.1. Never type your Microsoft password into a Git prompt |
 | `TF402455: Pushes to this branch are not permitted` | `main` is protected. Push a feature branch and open a PR |
 
-Help: `TODO(infinium): support channel, e.g. #claude-code Teams channel, and squad maintainers.`
+Help: support for Claude Code and the squad comes from the **R&D team**. Seat and licence requests go to **IT** (section 2). `TODO(infinium): R&D team's contact channel, e.g. a Teams channel.`
