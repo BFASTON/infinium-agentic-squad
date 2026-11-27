@@ -2,6 +2,8 @@
 
 A shared team of specialist [Claude Code](https://code.claude.com/docs) agents, plus Infinium's company-wide engineering standards, packaged as a Claude Code plugin. Install it once and every developer at Infinium works with the same squad, following the same Security Guide, Architecture Guide and coding standards.
 
+**New here?** Read the [Staff User Guide](docs/USER_GUIDE.md): getting a Claude licence, installing the squad, using the agents and commands, and pushing code to Infinium's Azure DevOps repos.
+
 ## What you get
 
 ### The squad
