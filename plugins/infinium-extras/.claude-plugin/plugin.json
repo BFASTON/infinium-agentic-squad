@@ -1,0 +1,10 @@
+{
+  "name": "infinium-extras",
+  "version": "0.1.0",
+  "description": "Opt-in community skills reviewed and vendored by Infinium (currently: napkin, a curated per-repo runbook).",
+  "author": {
+    "name": "Infinium Engineering"
+  },
+  "license": "MIT",
+  "keywords": ["community", "napkin", "runbook"]
+}

@@ -5,15 +5,33 @@
   },
   "metadata": {
     "description": "Infinium's shared Claude Code agentic squad and engineering standards.",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "infinium-squad",
       "source": "./plugins/infinium-squad",
-      "description": "A team of specialist agents (architect, backend, frontend, Python, Rust, SQL, data, QA, DevOps, security, code review, simplicity, docs), plus an independent challenger team, that share Infinium's security, architecture and coding standards.",
-      "version": "0.2.0",
+      "description": "A team of specialist agents (architect, backend, frontend, Python, Rust, SQL, data, QA, DevOps, security, code review, simplicity, docs, on-call), plus an independent challenger team, that share Infinium's security, architecture and coding standards.",
+      "version": "0.3.0",
       "category": "development"
+    },
+    {
+      "name": "infinium-extras",
+      "source": "./plugins/infinium-extras",
+      "description": "Opt-in community skills reviewed and vendored by Infinium (currently napkin, a curated per-repo runbook). See the Community Tools Register.",
+      "version": "0.1.0",
+      "category": "productivity"
+    },
+    {
+      "name": "ponytail",
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail",
+        "ref": "v5.3.3",
+        "sha": "7801d061243d7b753bad0e0b3c057cd250b11755"
+      },
+      "description": "Community plugin (MIT), pinned to v5.3.3: 'simplest solution that works' mode. Opt-in; runs Node.js hooks and keeps a local usage ledger. See the Community Tools Register before installing.",
+      "category": "productivity"
     }
   ]
 }

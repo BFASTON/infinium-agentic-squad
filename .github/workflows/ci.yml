@@ -24,6 +24,12 @@ jobs:
           echo '{"tool_input":{"file_path":"app/.env"}}' | python3 $H && exit 1 || [ $? -eq 2 ]
           echo '{"tool_input":{"file_path":"app/.env.example"}}' | python3 $H
           echo '{"tool_input":{"file_path":"src/main.ts"}}' | python3 $H
+      - name: Test notification hook is a no-op when not configured
+        run: |
+          N=plugins/infinium-squad/hooks/notify_human.py
+          out=$(echo '{"notification_type":"idle_prompt"}' | env -u INFINIUM_NOTIFY python3 $N 2>&1)
+          [ -z "$out" ]
+          echo 'not json' | INFINIUM_NOTIFY=ntfy python3 $N
 
   secret-scan:
     runs-on: ubuntu-latest

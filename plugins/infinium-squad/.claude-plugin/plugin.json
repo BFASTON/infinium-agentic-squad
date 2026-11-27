@@ -1,9 +1,23 @@
 {
   "name": "infinium-squad",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Infinium's agentic squad: specialist Claude Code agents, slash commands and shared engineering standards.",
   "author": {
     "name": "Infinium Engineering"
   },
-  "keywords": ["agents", "standards", "security", "architecture", "code-review", "simplicity", "python", "rust", "sql", "challenger"]
+  "keywords": [
+    "agents",
+    "standards",
+    "security",
+    "architecture",
+    "code-review",
+    "simplicity",
+    "python",
+    "rust",
+    "sql",
+    "challenger",
+    "on-call",
+    "escalation",
+    "notifications"
+  ]
 }

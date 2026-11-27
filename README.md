@@ -24,6 +24,7 @@ A shared team of specialist [Claude Code](https://code.claude.com/docs) agents, 
 | `code-reviewer` | Correctness and standards review before a PR (read-only) |
 | `simplifier` | Flags over-engineering and needless complexity, and proposes (or applies) simpler code |
 | `tech-writer` | READMEs, runbooks, API docs, release notes |
+| `on-call-engineer` | When a bug, failing build or incident has an unclear cause: triages severity, finds the root cause, fixes it with a regression test and gets it reviewed |
 
 Claude picks the right agent automatically from your request, or you can ask for one by name: *"Use the architect to design a notifications service."*
 
@@ -61,22 +62,44 @@ Run it with `/compete` for a new task or `/challenge` for work that's already do
 | `/simplify-check [scope] [--apply]` | Find over-engineering in your changes; `--apply` makes the simplifications |
 | `/compete <task>` | Squad and challenger team both build it, validate and critique each other, judge picks |
 | `/challenge [what it was for]` | Challenger team validates existing work, builds an alternative, judge compares |
+| `/oncall <error or symptom>` | On-call engineer triages, investigates to root cause, fixes and reviews |
 
 (If another plugin or a built-in uses the same command name, use the namespaced form, e.g. `/infinium-squad:review`.)
 
 ### Company standards
 
-Every agent loads these before working and cites them in its output. They live in [`plugins/infinium-squad/skills/infinium-standards/standards/`](plugins/infinium-squad/skills/infinium-standards/standards/):
+Every agent loads these before working and cites them in its output. The **Agent Instructions** tell agents how to behave, which guide to use and when to hand over; the **Escalation Policy** says when a human is genuinely needed. They live in [`plugins/infinium-squad/skills/infinium-standards/standards/`](plugins/infinium-squad/skills/infinium-standards/standards/):
 
+- [Agent Instructions](plugins/infinium-squad/skills/infinium-standards/standards/agent-instructions.md)
+- [Escalation Policy](plugins/infinium-squad/skills/infinium-standards/standards/escalation-policy.md)
 - [Security Guide](plugins/infinium-squad/skills/infinium-standards/standards/security-guide.md)
 - [Architecture Guide](plugins/infinium-squad/skills/infinium-standards/standards/architecture-guide.md)
 - [Coding Standards](plugins/infinium-squad/skills/infinium-standards/standards/coding-standards.md)
 - [Testing Standards](plugins/infinium-squad/skills/infinium-standards/standards/testing-standards.md)
 - [Git and PR Workflow](plugins/infinium-squad/skills/infinium-standards/standards/git-and-pr-workflow.md)
+- [Community Tools Register](plugins/infinium-squad/skills/infinium-standards/standards/community-tools.md)
 
 ### Guardrails
 
 A `PreToolUse` hook stops agents reading or writing common secrets files (`.env`, `*.pem`, `*.key`, cloud credentials, Terraform state). `.env.example` style templates are still allowed.
+
+### Autonomy and phone alerts
+
+Agents resolve problems themselves and only ask you when the [Escalation Policy](plugins/infinium-squad/skills/infinium-standards/standards/escalation-policy.md) says a human is genuinely needed (production or irreversible actions, credentials, goal-changing ambiguity, policy decisions, serious security findings, or being truly stuck). They ask in chat. If you set a few environment variables, a `Notification` hook also pushes an alert to your phone through [ntfy](https://ntfy.sh) or [Pushover](https://pushover.net) whenever Claude is waiting for you. Setup: [user guide](docs/USER_GUIDE.md#getting-a-phone-notification-when-the-squad-needs-you). Nothing is sent unless you configure it, and pushes never include code or data.
+
+### Community skills and plugins
+
+The `infinium` marketplace also offers reviewed community tools, all **opt-in** and pinned. See the [Community Tools Register](plugins/infinium-squad/skills/infinium-standards/standards/community-tools.md) for each tool's licence, what it runs, stores and sends, and the guardrails to follow.
+
+| Tool | How to get it | Status |
+|---|---|---|
+| napkin (curated per-repo runbook) | `/plugin install infinium-extras@infinium` | Opt-in, vendored (MIT) |
+| Ponytail (simplest-solution mode) | `/plugin install ponytail@infinium` | Opt-in, pinned to v5.3.3 |
+| Graphify (code knowledge graph) | `uv tool install graphifyy==0.9.121` | Opt-in, code-only by default |
+| claude-mem (session memory) | Upstream marketplace, with guardrails | Restricted: Internal (C3) work only, telemetry off |
+| awesome-design-md | Reference only | `DESIGN.md` examples |
+| Agent Skills spec | Enforced by `scripts/validate.py` | Adopted |
+| OmniRoute | | Not approved |
 
 ## Install
 
@@ -89,7 +112,7 @@ In Claude Code, run:
 /plugin install infinium-squad@infinium
 ```
 
-Restart Claude Code if prompted, then check with `/agents` (you should see the eighteen squad and challenger agents) and `/help` (the commands above).
+Restart Claude Code if prompted, then check with `/agents` (you should see the nineteen squad and challenger agents) and `/help` (the commands above).
 
 ### Install for a whole repository
 
@@ -139,7 +162,8 @@ plugins/infinium-squad/
   commands/                            Slash commands
   skills/infinium-standards/           Company standards, loaded by every agent
   skills/challenge-protocol/           How /compete and /challenge run the two teams
-  hooks/                               Secret-file guardrail
+  hooks/                               Secret-file guardrail and opt-in phone notifications
+plugins/infinium-extras/               Opt-in community skills vendored with their licences (napkin)
 templates/CLAUDE.md                    Starter CLAUDE.md for project repos
 scripts/validate.py                    Checks manifests, frontmatter and agent/skill references
 .github/workflows/                     CI: validation and secret scanning

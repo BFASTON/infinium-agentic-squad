@@ -23,11 +23,13 @@ The Infinium Agentic Squad is a **Claude Code plugin** that gives every develope
 
 | Part | What it gives you |
 |---|---|
-| **14 specialist agents** | Squad lead, architect, backend, frontend, Python, Rust, SQL, data, QA, DevOps, security reviewer, code reviewer, simplifier and tech writer |
+| **15 specialist agents** | Squad lead, architect, backend, frontend, Python, Rust, SQL, data, QA, DevOps, security reviewer, code reviewer, simplifier, tech writer and on-call engineer |
 | **Challenger team** | 3 challenger agents and a neutral judge that independently check the squad's work, build a competing solution and compare the two |
-| **9 slash commands** | `/squad`, `/design`, `/adr`, `/review`, `/security-review`, `/ship-check`, `/simplify-check`, `/compete`, `/challenge` |
-| **Infinium standards** | Security Guide, Architecture Guide, Coding Standards, Testing Standards, Git and PR Workflow. Every agent loads these before it works and cites them in its output |
+| **10 slash commands** | `/squad`, `/design`, `/adr`, `/review`, `/security-review`, `/ship-check`, `/simplify-check`, `/compete`, `/challenge`, `/oncall` |
+| **Infinium standards** | Agent Instructions, Escalation Policy, Security Guide, Architecture Guide, Coding Standards, Testing Standards, Git and PR Workflow and the Community Tools Register. Every agent loads these before it works and cites them in its output |
 | **Secret-file guardrail** | A hook that stops agents reading or writing `.env` files, private keys, cloud credentials and Terraform state |
+| **Phone alerts (opt-in)** | A hook that pushes a notification to your phone, through ntfy or Pushover, when Claude is waiting for you |
+| **Community tools (opt-in)** | Reviewed, pinned community skills and plugins such as napkin and Ponytail, with guardrails for each |
 | **Project template** | A starter `CLAUDE.md` that tells the squad about a project's stack, commands and local rules |
 | **CI checks** | Manifest validation and secret scanning on every change to the squad itself |
 
@@ -167,6 +169,7 @@ You can talk to Claude normally. It picks a specialist when the task fits, and r
 | `code-reviewer` | Correctness and standards review. Read-only |
 | `simplifier` | Spots over-engineering and needless complexity and suggests simpler code. Only edits when you ask |
 | `tech-writer` | READMEs, runbooks, API docs, release notes |
+| `on-call-engineer` | A bug, failing build or incident where the cause isn't clear. Triages, finds the root cause, fixes it with a regression test and gets the fix reviewed |
 
 ### The commands
 
@@ -181,6 +184,7 @@ You can talk to Claude normally. It picks a specialist when the task fits, and r
 | `/simplify-check [scope] [--apply]` | Finds over-engineering in your changes; `--apply` makes the simplifications | `/simplify-check --apply` |
 | `/compete <task>` | The squad and the challenger team both build it, test and critique each other, and a judge picks | `/compete Add rate limiting to the public API` |
 | `/challenge [what it was for]` | The challenger team tests work that's already done, builds an alternative, and a judge compares | `/challenge Replace the nightly invoice sync with change data capture` |
+| `/oncall <error or symptom>` | The on-call engineer triages it, finds the root cause, fixes and reviews it | `/oncall Checkout tests fail on CI only since this morning` |
 
 If another plugin or a built-in command uses the same name, use the namespaced form, for example `/infinium-squad:review`.
 
@@ -195,10 +199,85 @@ The challenger team only ever gets the task description, never the squad's plan 
 
 Nothing is merged or pushed for you. A run costs roughly two to three times a normal one, so use it when the decision is worth it. When you're done, remove the extra worktrees with `git worktree remove <path>`.
 
+### When something breaks: the on-call engineer
+
+When a bug, failing test, broken build or production error turns up and the cause isn't obvious, hand it to the on-call engineer with `/oncall <what you see>`, or let the squad do it: agents hand over automatically when they've tried a fix twice without success.
+
+It works like a good human on-call: classifies severity (SEV1 to SEV3), reproduces the failure, tests one hypothesis at a time until it finds the root cause, makes the smallest fix with a regression test, gets `code-reviewer` to review it, and ends with a short incident note. For a SEV1 (production down, data loss, a security breach or exposed secret) it tells you straight away and does nothing irreversible itself.
+
+### How the squad decides when to ask you
+
+The squad is built to work on its own. Agents make reasonable, reversible decisions themselves, write their assumptions in their report, and ask each other before they ask you: specialist, then on-call engineer, then squad lead. They only ask you when a human is genuinely needed:
+
+- anything irreversible or touching shared or production environments (deploys, migrations, deletions, force-pushes, messages outside the team);
+- credentials, access or licences they don't have;
+- ambiguity that would change the result;
+- policy, licence or data-classification decisions;
+- a High or Critical security finding;
+- spending money or quota beyond what the task implies;
+- being genuinely stuck after several evidence-based attempts.
+
+When they do ask, you get one clear question with options and a recommendation, in chat. The full rules are in the [Escalation Policy](../plugins/infinium-squad/skills/infinium-standards/standards/escalation-policy.md), and the [Agent Instructions](../plugins/infinium-squad/skills/infinium-standards/standards/agent-instructions.md) cover how agents behave generally. Coding rules stay in one place, the [Coding Standards](../plugins/infinium-squad/skills/infinium-standards/standards/coding-standards.md), which now include a section on fixing bugs (§8).
+
+### Getting a phone notification when the squad needs you
+
+So you can leave a long task running and walk away, the squad can push an alert to your phone whenever Claude Code is waiting for you (a permission prompt, or a question). It's off until you set it up, and each person sets it up for themselves. The push only says that Claude needs you (and, if you opt in, which project folder); it never includes code, prompts or data.
+
+Choose one service:
+
+**Option A: Pushover (recommended for work).** Private by design. One-off purchase per device after a trial.
+
+1. Install the Pushover app on your phone and create an account at [pushover.net](https://pushover.net). Note your **User Key**.
+2. On the Pushover site, create an application (call it "Claude Code") and note its **API Token**.
+3. Set the variables below.
+
+**Option B: ntfy (free).** Install the ntfy app and subscribe to a topic. On the public `ntfy.sh` server anyone who knows the topic name can read it, so use a long random name (for example from `openssl rand -hex 16`), or use a self-hosted ntfy server with an access token.
+
+Then set these environment variables **in your own environment only**, never in a project repository. Either add them to your shell profile (`~/.zshrc`, `~/.bashrc`, or Windows user environment variables), or put them under `"env"` in your personal `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "INFINIUM_NOTIFY": "pushover",
+    "PUSHOVER_USER_KEY": "<your user key>",
+    "PUSHOVER_APP_TOKEN": "<your app token>"
+  }
+}
+```
+
+| Variable | Needed for | Meaning |
+|---|---|---|
+| `INFINIUM_NOTIFY` | Both | `pushover` or `ntfy`. Unset or `off` turns alerts off |
+| `PUSHOVER_USER_KEY`, `PUSHOVER_APP_TOKEN` | Pushover | From your Pushover account and application |
+| `NTFY_TOPIC` | ntfy | Your topic name (long and random) |
+| `NTFY_SERVER` | ntfy, optional | Defaults to `https://ntfy.sh`; must be `https://` |
+| `NTFY_TOKEN` | ntfy, optional | Access token for a protected topic or self-hosted server |
+| `INFINIUM_NOTIFY_DETAIL` | Optional | `1` adds the project folder name to the alert. Leave it off if folder names are confidential |
+
+Restart Claude Code, then test it: ask Claude to run a command that needs your approval and wait for the prompt. Your phone should buzz within a few seconds. If it doesn't, Claude Code shows a `notify_human: push not sent (...)` message with the reason. A failed push never blocks your session.
+
+Treat the Pushover token like any other credential: keep it out of repos, chats and screenshots.
+
+### Community skills and plugins
+
+The `infinium` marketplace also offers some popular community tools that have been reviewed for use at Infinium. They are **opt-in**, pinned to a reviewed version, and each has guardrails you need to follow. Read the [Community Tools Register](../plugins/infinium-squad/skills/infinium-standards/standards/community-tools.md) before installing one.
+
+| Tool | What it does | How to get it | Status |
+|---|---|---|---|
+| napkin | Keeps a short, curated runbook of repo gotchas at `.claude/napkin.md` | `/plugin install infinium-extras@infinium` | Opt-in. Don't put secrets or customer data in the napkin |
+| Ponytail | "Simplest solution that works" mode | `/plugin install ponytail@infinium` | Opt-in, v5.3.3. Turn off its Task board ledger if you don't want local usage records, and leave its webhook empty. Use it or `simplifier` on a task, not both |
+| Graphify | Builds a knowledge graph of a codebase for faster navigation | `uv tool install graphifyy==0.9.121`, then `graphify install` | Opt-in. Set `GRAPHIFY_BACKEND=none` unless the LLM provider is approved for the repo |
+| claude-mem | Remembers past sessions and feeds a summary into new ones | From its own marketplace (see the register) | Restricted: Internal (C3) work only. Run `npx claude-mem telemetry disable` straight after installing, and keep Cloud Sync off |
+| awesome-design-md | Examples of `DESIGN.md` design-system files | Reference only | Use it to write your project's own `DESIGN.md` |
+| Agent Skills spec | The open standard for skill files | Built in | The squad's skills follow it, and CI checks them |
+| OmniRoute | A gateway that routes prompts across hundreds of third-party model providers | | **Not approved**: it would send Infinium code to unvetted providers |
+
+To propose another tool, open a PR that adds it to the register (see [CONTRIBUTING.md](../CONTRIBUTING.md)).
+
 ### A typical day
 
 1. Start a feature: `/design ...` for anything non-trivial, then `/squad ...` or ask a specific engineer agent.
-2. While working: ask the `qa-engineer` for tests as you go.
+2. While working: ask the `qa-engineer` for tests as you go. If something breaks and you can't see why, `/oncall` it.
 3. Before a PR: run `/ship-check`. Fix what it flags. For a big or risky change, `/challenge` it first.
 4. Push to Azure DevOps and open a PR (section 6). A human still reviews and approves every PR.
 
@@ -342,6 +421,8 @@ Sources: [Use Git Credential Manager to authenticate to Azure Repos](https://lea
 | `/plugin marketplace add` fails | Check you have access to the GitHub repo (section 4) and are signed in to GitHub |
 | Squad agents missing from `/agents` | `/plugin marketplace update infinium`, then restart Claude Code |
 | Guardrail hook errors | Make sure `python3` is on your `PATH` |
+| No phone alert | Check `INFINIUM_NOTIFY` and the service's variables are set in the environment Claude Code starts from, then restart it. Look for a `notify_human: push not sent` message |
+| Too many phone alerts | Unset `INFINIUM_NOTIFY`, or mute the app while you're at your desk |
 | `git push` asks for a password | GCM isn't installed or configured. Repeat section 6.1. Never type your Microsoft password into a Git prompt |
 | `TF402455: Pushes to this branch are not permitted` | `main` is protected. Push a feature branch and open a PR |
 

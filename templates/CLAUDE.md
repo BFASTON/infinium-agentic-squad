@@ -42,6 +42,14 @@ This project uses the **Infinium Agentic Squad** plugin. All agents follow the I
 - Do not touch generated code in src/generated/.
 -->
 
+## Escalation
+
+Agents resolve problems themselves and ask a human only when the Escalation Policy says one is genuinely needed. Bugs with an unclear cause go to `on-call-engineer` (or `/oncall`).
+
+- **Human contact for this project:** <!-- who answers the squad's questions -->
+- **Extra things that always need a human here:** <!-- e.g. any change under billing/, any schema migration -->
+- **Phone alerts:** each developer sets `INFINIUM_NOTIFY` and their ntfy or Pushover variables in their own environment (see the user guide). Never commit them here.
+
 ## Never
 
 - Commit secrets or read `.env` files (use `.env.example` for variable names).
