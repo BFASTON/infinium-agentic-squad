@@ -13,12 +13,18 @@
 
 ## 2. Data classification
 
-| Class | Examples | Minimum controls |
-|---|---|---|
-| Public | Marketing copy, open-source code | Integrity checks |
-| Internal | Internal docs, non-sensitive metrics | Authenticated access |
-| Confidential | Customer data, financials, source of proprietary products | Encryption at rest and in transit, access logging, need-to-know |
-| Restricted | Credentials, payment data, health or government ID data | All of the above, plus approved storage only, no copies in logs, tickets, chats or AI prompts |
+Infinium classifies data with a **C-level** scheme. **C3 = Internal** is confirmed. The other levels are not yet filled in here, so the table below keeps descriptive working names for them. When you classify data, use the C-level where it is known (e.g. "C3") and otherwise the working name, and flag the level as unconfirmed.
+
+`TODO(infinium): full C-level scale: how many levels, the name of each, which end is most sensitive, and which C-level each working name below maps to.`
+
+| C-level | Working name | Examples | Minimum controls |
+|---|---|---|---|
+| `TODO(infinium)` | Public | Marketing copy, open-source code | Integrity checks |
+| **C3** | Internal | Internal docs, non-sensitive metrics | Authenticated access |
+| `TODO(infinium)` | Confidential | Customer data, financials, source of proprietary products | Encryption at rest and in transit, access logging, need-to-know |
+| `TODO(infinium)` | Restricted | Credentials, payment data, health or government ID data | All of the above, plus approved storage only, no copies in logs, tickets, chats or AI prompts |
+
+Until the scale is confirmed, treat any data you cannot place as at least as sensitive as Confidential, never lower.
 
 `TODO(infinium): link the official data classification policy and any regulatory scope (e.g. GDPR, SOC 2, PCI DSS, ISO 27001).`
 
@@ -27,11 +33,13 @@
 ## 3. Secrets
 
 1. Never commit secrets: no keys, tokens, passwords, connection strings or private certificates in code, config, tests, fixtures, docs or commit history.
-2. Store secrets in the approved secrets manager. `TODO(infinium): name it (e.g. AWS Secrets Manager, Azure Key Vault, HashiCorp Vault).` Default: the cloud provider's managed secrets service.
-3. Inject secrets at runtime through environment or a mounted secret. Reference them by name in code.
-4. Commit a `.env.example` with variable names and dummy values only.
-5. Every repo runs secret scanning in CI (see `.github/workflows/secret-scan.yml` in this repo for a template).
-6. A leaked secret is an incident: **rotate first**, then remove from history, then report (§10).
+2. Store secrets in **Azure Key Vault**, Infinium's approved secrets manager. This covers API keys, passwords, connection strings, certificates and encryption keys. Do not keep secrets in pipeline variables, app settings, config files or another vault as the source of truth.
+3. Read secrets at runtime from Key Vault and reference them by name in code (e.g. a Key Vault reference in app settings, the Key Vault CSI driver on Kubernetes, or the Azure SDK). Authenticate to Key Vault with a managed identity or workload identity federation, not a stored client secret.
+4. Grant access with Azure RBAC at the narrowest scope that works (one vault per application and environment is a good default), and give apps read-only roles such as *Key Vault Secrets User*.
+5. Keep soft-delete and purge protection on, and set expiry dates on secrets and certificates so rotation is tracked.
+6. Commit a `.env.example` with variable names and dummy values only.
+7. Every repo runs secret scanning in CI (see `.github/workflows/secret-scan.yml` in this repo for a template).
+8. A leaked secret is an incident: **rotate first** (create a new version in Key Vault and revoke the old credential at its source), then remove from history, then report (§10).
 
 ## 4. Authentication and authorisation
 

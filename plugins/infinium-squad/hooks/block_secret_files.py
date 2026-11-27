@@ -39,7 +39,7 @@ def main() -> int:
     if any(re.search(p, norm, re.IGNORECASE) for p in BLOCKED):
         print(
             f"Blocked by Infinium security policy: '{path}' looks like a secrets file. "
-            "Agents must not read or write credentials. Use the approved secrets manager "
+            "Agents must not read or write credentials. Store them in Azure Key Vault "
             "and reference secrets by name (see the Infinium Security Guide, section 3).",
             file=sys.stderr,
         )
