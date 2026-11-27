@@ -1,0 +1,19 @@
+{
+  "name": "infinium",
+  "owner": {
+    "name": "Infinium Engineering"
+  },
+  "metadata": {
+    "description": "Infinium's shared Claude Code agentic squad and engineering standards.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "infinium-squad",
+      "source": "./plugins/infinium-squad",
+      "description": "A team of specialist agents (architect, backend, frontend, data, QA, DevOps, security, code review, docs) that share Infinium's security, architecture and coding standards.",
+      "version": "0.1.0",
+      "category": "development"
+    }
+  ]
+}
