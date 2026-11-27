@@ -23,8 +23,9 @@ The Infinium Agentic Squad is a **Claude Code plugin** that gives every develope
 
 | Part | What it gives you |
 |---|---|
-| **10 specialist agents** | Squad lead, architect, backend, frontend, data, QA, DevOps, security reviewer, code reviewer and tech writer |
-| **6 slash commands** | `/squad`, `/design`, `/adr`, `/review`, `/security-review`, `/ship-check` |
+| **14 specialist agents** | Squad lead, architect, backend, frontend, Python, Rust, SQL, data, QA, DevOps, security reviewer, code reviewer, simplifier and tech writer |
+| **Challenger team** | 3 challenger agents and a neutral judge that independently check the squad's work, build a competing solution and compare the two |
+| **9 slash commands** | `/squad`, `/design`, `/adr`, `/review`, `/security-review`, `/ship-check`, `/simplify-check`, `/compete`, `/challenge` |
 | **Infinium standards** | Security Guide, Architecture Guide, Coding Standards, Testing Standards, Git and PR Workflow. Every agent loads these before it works and cites them in its output |
 | **Secret-file guardrail** | A hook that stops agents reading or writing `.env` files, private keys, cloud credentials and Terraform state |
 | **Project template** | A starter `CLAUDE.md` that tells the squad about a project's stack, commands and local rules |
@@ -109,7 +110,7 @@ In Claude Code run:
 
 Restart Claude Code if asked, then check:
 
-- `/agents` lists the ten squad agents
+- `/agents` lists the eighteen squad and challenger agents
 - `/help` lists the squad commands
 
 ### Install for a whole project
@@ -155,12 +156,16 @@ You can talk to Claude normally. It picks a specialist when the task fits, and r
 | `squad-lead` | Multi-step work across several areas. Plans, delegates to specialists and integrates the results |
 | `architect` | System and feature design, trade-offs, API/event contracts, ADRs |
 | `backend-engineer` | APIs, services, business logic, integrations |
-| `frontend-engineer` | UI, components, accessibility, client performance |
-| `data-engineer` | Schemas, migrations, queries, pipelines, data quality |
+| `frontend-engineer` | UI, components, design systems, accessibility, responsive layout, web performance |
+| `python-specialist` | Python code: typing, packaging, async, pytest, performance |
+| `rust-specialist` | Rust code: ownership, error handling, async, `unsafe` review, Cargo, performance |
+| `sql-specialist` | Writing, reviewing and tuning SQL queries in any dialect |
+| `data-engineer` | Schemas, migrations, pipelines, data quality |
 | `qa-engineer` | Test strategy, writing tests, reproducing bugs, flaky tests |
 | `devops-engineer` | CI/CD, Docker, infrastructure as code, observability |
 | `security-reviewer` | Threat models and security reviews. Read-only: reports, never edits |
 | `code-reviewer` | Correctness and standards review. Read-only |
+| `simplifier` | Spots over-engineering and needless complexity and suggests simpler code. Only edits when you ask |
 | `tech-writer` | READMEs, runbooks, API docs, release notes |
 
 ### The commands
@@ -173,14 +178,28 @@ You can talk to Claude normally. It picks a specialist when the task fits, and r
 | `/review [scope]` | Code review of your current changes | `/review` |
 | `/security-review [scope]` | Security review of your current changes | `/security-review src/auth` |
 | `/ship-check` | Lint, types, tests, both reviews and a PR description: tells you if you are ready to ship | `/ship-check` |
+| `/simplify-check [scope] [--apply]` | Finds over-engineering in your changes; `--apply` makes the simplifications | `/simplify-check --apply` |
+| `/compete <task>` | The squad and the challenger team both build it, test and critique each other, and a judge picks | `/compete Add rate limiting to the public API` |
+| `/challenge [what it was for]` | The challenger team tests work that's already done, builds an alternative, and a judge compares | `/challenge Replace the nightly invoice sync with change data capture` |
 
-If another plugin uses the same name, use the namespaced form, for example `/infinium-squad:review`.
+If another plugin or a built-in command uses the same name, use the namespaced form, for example `/infinium-squad:review`.
+
+### Getting a second opinion: the challenger team
+
+For decisions that are high-stakes, hard to undo, or have several sensible approaches, you can have a second, independent team solve the same problem and compare the answers.
+
+- `/compete <task>`: the squad and the challenger team each build a solution.
+- `/challenge`: the challenger team takes on work you've already done on your branch. Tell it in one line what the change was for.
+
+The challenger team only ever gets the task description, never the squad's plan or code, and each team works in its own git worktree. Each solution is tested by the other team's tester, each team critiques the other's finished work, and a neutral judge compares them without knowing which team built which. You get a verdict (use one, combine named parts of both, or neither), a comparison table and both branches.
+
+Nothing is merged or pushed for you. A run costs roughly two to three times a normal one, so use it when the decision is worth it. When you're done, remove the extra worktrees with `git worktree remove <path>`.
 
 ### A typical day
 
 1. Start a feature: `/design ...` for anything non-trivial, then `/squad ...` or ask a specific engineer agent.
 2. While working: ask the `qa-engineer` for tests as you go.
-3. Before a PR: run `/ship-check`. Fix what it flags.
+3. Before a PR: run `/ship-check`. Fix what it flags. For a big or risky change, `/challenge` it first.
 4. Push to Azure DevOps and open a PR (section 6). A human still reviews and approves every PR.
 
 You stay responsible for what you commit. Read the diff before you accept it.
